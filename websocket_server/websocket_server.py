@@ -315,8 +315,7 @@ class WebSocketHandler(StreamRequestHandler):
             logger.warning("Continuation frames are not supported.")
             return
         elif opcode == OPCODE_BINARY:
-            logger.warning("Binary frames are not supported.")
-            return
+            opcode_handler = self.server._message_received_
         elif opcode == OPCODE_TEXT:
             opcode_handler = self.server._message_received_
         elif opcode == OPCODE_PING:
@@ -338,7 +337,7 @@ class WebSocketHandler(StreamRequestHandler):
         for message_byte in self.read_bytes(payload_length):
             message_byte ^= masks[len(message_bytes) % 4]
             message_bytes.append(message_byte)
-        opcode_handler(self, message_bytes.decode('utf8'))
+        opcode_handler(self, message_bytes)
 
     def send_message(self, message):
         self.send_text(message)
@@ -375,17 +374,17 @@ class WebSocketHandler(StreamRequestHandler):
         """
 
         # Validate message
-        if isinstance(message, bytes):
-            message = try_decode_UTF8(message)  # this is slower but ensures we have UTF-8
-            if not message:
-                logger.warning("Can\'t send message, message is not valid UTF-8")
-                return False
-        elif not isinstance(message, str):
-            logger.warning('Can\'t send message, message has to be a string or bytes. Got %s' % type(message))
-            return False
+        #if isinstance(message, bytes):
+            #message = try_decode_UTF8(message)  # this is slower but ensures we have UTF-8
+            #if not message:
+            #    logger.warning("Can\'t send message, message is not valid UTF-8")
+            #    return False
+        #elif not isinstance(message, str):
+        #    logger.warning('Can\'t send message, message has to be a string or bytes. Got %s' % type(message))
+         #   return False
 
         header  = bytearray()
-        payload = encode_to_UTF8(message)
+        payload = message
         payload_length = len(payload)
 
         # Normal payload

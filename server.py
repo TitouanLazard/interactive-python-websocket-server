@@ -42,7 +42,7 @@ def thread_input(server):
                     server.send_message_to_all(data)
 
 
-PORT=9001
+PORT=int(sys.argv[1])
 server = WebsocketServer(port = PORT)
 server.set_fn_new_client(new_client)
 server.set_fn_client_left(client_left)
